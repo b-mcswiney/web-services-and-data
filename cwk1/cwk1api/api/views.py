@@ -148,16 +148,25 @@ def get_story(request):
 
     return JsonResponse({"stories": output}, status=200)
 
+@csrf_exempt
 def delete_story(request, id):
 
     if request.method != "DELETE":
         return JsonResponse({"message": "Service unavailable, Invalid method"}, status=503)
+    
+    try:
+        session = request.session["login_status"]
 
-    item = Story.objects.get(id=id)
+        if session != "logged_in":
+            return JsonResponse({"message": "Service unavailable, user not logged in"}, status=503)
+    except KeyError:
+        return JsonResponse({"message": "Service unavailable, user not logged in"}, status=503)
 
-    if item is not None:
-        item.delete()
-        return JsonResponse({"message": "OK"}, status=200)
+    try:
+        item = Story.objects.get(id=id)
+    except Story.DoesNotExist:
+        return JsonResponse({"message": "Service unavailable, story not found"}, status=503)
 
-    return JsonResponse({"message": "Service unavailable, Invalid method"}, status=503)
+    item.delete()
+    return JsonResponse({"message": "OK"}, status=200)
 

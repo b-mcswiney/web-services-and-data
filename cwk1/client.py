@@ -6,7 +6,7 @@ def login(session, url, username, password):
         "password": password
     }
 
-    response = session.post(url + "api/login", data=data)
+    response = session.post(url + "/api/login", data=data)
 
     response_body = response.json()
 
@@ -18,14 +18,14 @@ def login(session, url, username, password):
     return ""
     
 def logout(session, url):
-    response = session.post(url + "api/logout")
+    response = session.post(url + "/api/logout")
 
     response_body = response.json()
 
     print(response_body["message"])
 
 def post(session, url, headline, category, region, details):
-    response = session.post(url + "api/stories", json={
+    response = session.post(url + "/api/stories", json={
         "headline": headline,
         "category": category,
         "region": region,
@@ -85,6 +85,7 @@ def news(options):
 
 def print_news(news):
     for story in news:
+        print("ID: ", story["key"])
         print("HEADLINE: ", story["headline"])
         print("CATEGORY: ", story["story_cat"])
         print("REGION: ", story["story_region"])
@@ -104,8 +105,8 @@ def list_news_sites():
         print("NAME: ", site["agency_name"])
         print("\n")
 
-def delete(session, url):
-    response = session.delete(url + "api/stories/" + str(id))
+def delete(session, url, id):
+    response = session.delete(url + "/api/stories/" + str(id))
 
     response_body = response.json()
 
@@ -158,16 +159,19 @@ def main():
                 print("Not logged in")
 
         if input_list[0] == "post":
-            print(input_prompt + "headline: ", end="")
-            headline = input()
-            print(input_prompt + "category (pol, art, tech, trivia): ", end="")
-            category = input()
-            print(input_prompt + "region (uk, eu, w): ", end="")
-            region = input()
-            print(input_prompt + "details: ", end="")
-            details = input()
-
-            post(session, session_url, headline, category, region, details)
+            if session_url == "":
+                print("Not logged in")
+            else:
+                print(input_prompt + "headline: ", end="")
+                headline = input()
+                print(input_prompt + "category (pol, art, tech, trivia): ", end="")
+                category = input()
+                print(input_prompt + "region (uk, eu, w): ", end="")
+                region = input()
+                print(input_prompt + "details: ", end="")
+                details = input()
+    
+                post(session, session_url, headline, category, region, details)
 
         if input_list[0] == "news":
             options = parse_news_options(input_list[1:])
@@ -178,7 +182,10 @@ def main():
             list_news_sites()
 
         if input_list[0] == "delete":
-            delete(session, session_url)
+            if session_url != "":
+                delete(session, session_url, input_list[1])
+            else:
+                print("not logged in")
 
         if input_list[0] == "help":
             display_help()
