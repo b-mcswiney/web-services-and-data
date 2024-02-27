@@ -1,4 +1,5 @@
 import requests
+from getpass import getpass
 
 def login(session, url, username, password):
     data = {
@@ -144,10 +145,8 @@ def main():
             break
         
         if input_list[0] == "login":
-            print(input_prompt + "username: ", end="")
-            username = input()
-            print(input_prompt + "password: ", end="")
-            password = input()
+            username = input("username: ")
+            password = getpass("password: ")
 
             session_url = login(session, input_list[1], username, password)
 

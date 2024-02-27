@@ -33,7 +33,7 @@ def login(request):
 
         return JsonResponse({"message": "Welcome!"}, status=200)
 
-    return JsonResponse({"session": "Incorrect username or password"}, status=503)
+    return JsonResponse({"message": "Incorrect username or password"}, status=503)
 
 @csrf_exempt
 def logout(request):
