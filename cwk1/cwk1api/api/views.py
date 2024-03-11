@@ -1,20 +1,21 @@
-from django.shortcuts import HttpResponse
-from django.http import JsonResponse
-from django.conf import settings
+import json
+from datetime import date
+
+from api.models import Story
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django.http import JsonResponse
+from django.shortcuts import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from api.models import Story
-from datetime import date
-import json
+
 
 # Create your views here.
 def index(request):
     return HttpResponse("Hello, world. You're at the api index.")
 
+
 @csrf_exempt
 def login(request):
-
     # Get request body
     try:
         username = request.POST["username"]
@@ -35,9 +36,9 @@ def login(request):
 
     return JsonResponse({"message": "Incorrect username or password"}, status=503)
 
+
 @csrf_exempt
 def logout(request):
-
     try:
         session = request.session["login_status"]
 
@@ -48,19 +49,20 @@ def logout(request):
             return JsonResponse({"message": "User logged out"}, status=200)
     except KeyError:
         return JsonResponse({"message": "User not logged in, key error detected"}, status=503)
-    
+
     return JsonResponse({"message": "User not logged in"}, status=503)
+
 
 @csrf_exempt
 def stories(request):
     if request.method == "GET":
         return get_story(request)
-    
+
     if request.method == "POST":
         return post_story(request)
 
-def post_story(request):
 
+def post_story(request):
     try:
         session = request.session["login_status"]
 
@@ -68,7 +70,7 @@ def post_story(request):
             return JsonResponse({"message": "Service unavailable, user not logged in"}, status=503)
     except KeyError:
         return JsonResponse({"message": "Service unavailable, user not logged in"}, status=503)
-    
+
     request_dict = request.body.decode('utf-8')
     body = json.loads(request_dict)
 
@@ -84,11 +86,9 @@ def post_story(request):
 
     if category != "pol" and category != "art" and category != "tech" and category != "trivia":
         return JsonResponse({"message": "Service unavailable, invalid category"}, status=503)
-    
+
     if region != "uk" and region != "eu" and region != "w":
         return JsonResponse({"message": "Service unavailable, invalid region"}, status=503)
-    
-
 
     story = Story(headline=headline, category=category, region=region, details=details, date=date_today, author=author)
 
@@ -96,8 +96,8 @@ def post_story(request):
 
     return JsonResponse({"message": "CREATED"}, status=200)
 
-def get_story(request):
 
+def get_story(request):
     # Get request data
 
     try:
@@ -114,12 +114,12 @@ def get_story(request):
         response = response.all()
     else:
         response = response.filter(category=category)
-    
+
     if region == "*":
         response = response.all()
-    else:  
+    else:
         response = response.filter(region=region)
-    
+
     if date == "*":
         response = response.all()
     else:
@@ -148,12 +148,12 @@ def get_story(request):
 
     return JsonResponse({"stories": output}, status=200)
 
+
 @csrf_exempt
 def delete_story(request, id):
-
     if request.method != "DELETE":
         return JsonResponse({"message": "Service unavailable, Invalid method"}, status=503)
-    
+
     try:
         session = request.session["login_status"]
 
@@ -169,4 +169,3 @@ def delete_story(request, id):
 
     item.delete()
     return JsonResponse({"message": "OK"}, status=200)
-
