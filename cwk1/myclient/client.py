@@ -2,7 +2,7 @@ from getpass import getpass
 
 import requests
 import random
-
+import json
 
 def login(session, url, username, password):
     data = {
@@ -103,20 +103,29 @@ def news(options):
                 print_news(news_body["stories"])
             else:
                 print(news_body["message"])
-        except requests.RequestException as err:
-            print(err)
+        except requests.RequestException as request_err:
+            print("\n ------------------------- \n REQUEST ERROR \n", request_err, "\n ------------------------- \n")
+            continue
+        except json.decoder.JSONDecodeError as json_err:
+            print("\n ------------------------- \n DECODE ERROR \n", json_err, "\n ------------------------- \n")
+        except KeyError as key_err:
+            print("\n ------------------------- \n KEY ERROR \n", key_err, "\n ------------------------- \n")
+
 
 
 def print_news(news):
     for story in news:
-        print("ID: ", story["key"])
-        print("HEADLINE: ", story["headline"])
-        print("CATEGORY: ", story["story_cat"])
-        print("REGION: ", story["story_region"])
-        print("DATE: ", story["story_date"])
-        print("AUTHOR: ", story["author"])
-        print("DETAILS: \n", story["story_details"])
-        print("\n")
+        try:
+            print("ID: ", story["key"])
+            print("HEADLINE: ", story["headline"])
+            print("CATEGORY: ", story["story_cat"])
+            print("REGION: ", story["story_region"])
+            print("DATE: ", story["story_date"])
+            print("AUTHOR: ", story["author"])
+            print("DETAILS: \n", story["story_details"])
+            print("\n")
+        except KeyError as err:
+            print("\n ------------------------- \n KEY ERROR \n", err, "\n ------------------------- \n")
 
 
 def list_news_sites():
@@ -172,10 +181,14 @@ def main():
             break
 
         elif input_list[0] == "login":
-            username = input("username: ")
-            password = getpass("password: ")
+            # Check url has been provided
+            if len(input_list) < 2:
+                print("Missing URL. \n Correct usage: login <URL>")
+            else:
+                username = input("username: ")
+                password = getpass("password: ")
 
-            session_url = login(session, input_list[1], username, password)
+                session_url = login(session, input_list[1], username, password)
 
         elif input_list[0] == "logout":
             if session_url != "":

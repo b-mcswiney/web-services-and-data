@@ -136,7 +136,7 @@ def get_story(request):
         author = User.objects.get(id=story["author_id"])
 
         # Build output dictionary for the story
-        story_dict["key"] = story["id"]
+        story_dict["key"] = str(story["id"])
         story_dict["headline"] = story["headline"]
         story_dict["story_cat"] = story["category"]
         story_dict["story_region"] = story["region"]
