@@ -4,17 +4,28 @@ import requests
 import random
 import json
 
+
 def login(session, url, username, password):
     data = {
         "username": username,
         "password": password
     }
 
-    response = session.post(url + "/api/login", data=data)
+    try:
+        response = session.post(url + "/api/login", data=data)
 
-    response_body = response.json()
+        response_body = response.json()
 
-    print(response_body["message"])
+        print(response_body["message"])
+    except requests.RequestException as request_err:
+        print("\n ------------------------- \n REQUEST ERROR \n Error: ", request_err,
+              "\n ------------------------- \n")
+    except json.decoder.JSONDecodeError as json_err:
+        print("\n ------------------------- \n DECODE ERROR (double check URL)\n Error: ", json_err,
+              "\n ------------------------- \n")
+    except KeyError as key_err:
+        print("\n ------------------------- \n KEY ERROR \n Error: ", key_err,
+              "\n ------------------------- \n")
 
     if response.status_code == 200:
         return url
@@ -71,8 +82,6 @@ def news(options):
 
     urls = []
 
-    print(options["id"])
-
     if options["id"] != "*":
         for site in possible_sites:
             if site["agency_code"] == options["id"]:
@@ -93,27 +102,32 @@ def news(options):
         "story_date": options["date"]
     }
 
+    count = 1
     for url in urls:
+        print("------------------------- \n URL number:", count, "Getting from: ", url, "\n")
+        count += 1
+
         try:
             news = requests.get(url + "/api/stories", params=params)
 
             news_body = news.json()
 
             if news.status_code == 200:
-                print_news(news_body["stories"])
+                print_news(news_body["stories"], url)
             else:
                 print(news_body["message"])
         except requests.RequestException as request_err:
-            print("\n ------------------------- \n REQUEST ERROR \n", request_err, "\n ------------------------- \n")
+            print("\n ------------------------- \n REQUEST ERROR \n Error: ", request_err,
+                  "\n ------------------------- \n")
             continue
         except json.decoder.JSONDecodeError as json_err:
-            print("\n ------------------------- \n DECODE ERROR \n", json_err, "\n ------------------------- \n")
+            print("\n ------------------------- \n DECODE ERROR \n Error: ", json_err,
+                  "\n ------------------------- \n")
         except KeyError as key_err:
-            print("\n ------------------------- \n KEY ERROR \n", key_err, "\n ------------------------- \n")
+            print("\n ------------------------- \n KEY ERROR \n Error: ", key_err,
+                  "\n ------------------------- \n")
 
-
-
-def print_news(news):
+def print_news(news, url):
     for story in news:
         try:
             print("ID: ", story["key"])
@@ -125,7 +139,7 @@ def print_news(news):
             print("DETAILS: \n", story["story_details"])
             print("\n")
         except KeyError as err:
-            print("\n ------------------------- \n KEY ERROR \n", err, "\n ------------------------- \n")
+            print("\n ------------------------- \n KEY ERROR \n from: ", url, err, "\n ------------------------- \n")
 
 
 def list_news_sites():
@@ -184,16 +198,21 @@ def main():
             # Check url has been provided
             if len(input_list) < 2:
                 print("Missing URL. \n Correct usage: login <URL>")
+            elif session_url != "":
+                print("Already logged into a service")
             else:
                 username = input("username: ")
                 password = getpass("password: ")
 
                 session_url = login(session, input_list[1], username, password)
 
+                input_prompt = "(logged into: " + session_url + " as " + username + ") >> "
+
         elif input_list[0] == "logout":
             if session_url != "":
                 logout(session, session_url)
                 session_url = ""
+                input_prompt = ">> "
             else:
                 print("Not logged in")
 
