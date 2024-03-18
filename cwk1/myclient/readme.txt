@@ -15,8 +15,10 @@ help - Display this help message
        [-date=] - date of news
   exit - Exit the program
 
-Python anywhere domain: ed20b3m.pythonanywhere.com
+Python anywhere domain: http://ed20b3m.pythonanywhere.com
 username: ammar
 password: password1234
+
+note: login function in client requires the "http://" prefix
 
 
