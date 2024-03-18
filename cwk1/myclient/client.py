@@ -86,6 +86,9 @@ def news(options):
         for site in possible_sites:
             if site["agency_code"] == options["id"]:
                 urls.append(site["url"])
+        if len(urls) == 0:
+            print("id not found. ")
+            return False
 
     elif options["id"] == "*":
         count = 0

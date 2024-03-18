@@ -21,7 +21,7 @@ def login(request):
         username = request.POST["username"]
         password = request.POST["password"]
     except KeyError:
-        return JsonResponse({"message": "Service unavailable, invalid request"}, status=503)
+        return JsonResponse({"message": "Service unavailable, invalid request"}, status=400) # 400 = bad request
 
     # Authenticate user
     user = authenticate(request, username=username, password=password)
@@ -34,7 +34,7 @@ def login(request):
 
         return JsonResponse({"message": "Welcome!"}, status=200)
 
-    return JsonResponse({"message": "Incorrect username or password"}, status=503)
+    return JsonResponse({"message": "Incorrect username or password"}, status=401) # 401 = unauthorized
 
 
 @csrf_exempt
@@ -48,9 +48,9 @@ def logout(request):
 
             return JsonResponse({"message": "User logged out"}, status=200)
     except KeyError:
-        return JsonResponse({"message": "User not logged in, key error detected"}, status=503)
+        return JsonResponse({"message": "User not logged in, key error detected"}, status=400)
 
-    return JsonResponse({"message": "User not logged in"}, status=503)
+    return JsonResponse({"message": "User not logged in"}, status=401)
 
 
 @csrf_exempt
@@ -67,9 +67,9 @@ def post_story(request):
         session = request.session["login_status"]
 
         if session != "logged_in":
-            return JsonResponse({"message": "Service unavailable, user not logged in"}, status=503)
+            return JsonResponse({"message": "Service unavailable, user not logged in"}, status=401)
     except KeyError:
-        return JsonResponse({"message": "Service unavailable, user not logged in"}, status=503)
+        return JsonResponse({"message": "Service unavailable, user not logged in"}, status=401)
 
     request_dict = request.body.decode('utf-8')
     body = json.loads(request_dict)
@@ -82,13 +82,13 @@ def post_story(request):
     author = User.objects.get(username=request.session["username"])
 
     if headline == "" or category == "" or region == "" or details == "":
-        return JsonResponse({"message": "Service unavailable, empty fields detected"}, status=503)
+        return JsonResponse({"message": "Service unavailable, empty fields detected"}, status=400)
 
     if category != "pol" and category != "art" and category != "tech" and category != "trivia":
-        return JsonResponse({"message": "Service unavailable, invalid category"}, status=503)
+        return JsonResponse({"message": "Service unavailable, invalid category"}, status=400)
 
     if region != "uk" and region != "eu" and region != "w":
-        return JsonResponse({"message": "Service unavailable, invalid region"}, status=503)
+        return JsonResponse({"message": "Service unavailable, invalid region"}, status=400)
 
     story = Story(headline=headline, category=category, region=region, details=details, date=date_today, author=author)
 
@@ -105,7 +105,7 @@ def get_story(request):
         region = request.GET["story_region"]
         date = request.GET["story_date"]
     except KeyError:
-        return JsonResponse({"message": "Service unavailable, invalid request"}, status=503)
+        return JsonResponse({"message": "Service unavailable, invalid request"}, status=400)
 
     # Filter stories by request specified params
     response = Story.objects
@@ -146,26 +146,29 @@ def get_story(request):
 
         output.append(story_dict)
 
+    if len(output) == 0:
+        return JsonResponse({"message": "No stories found"}, status=404)
+
     return JsonResponse({"stories": output}, status=200)
 
 
 @csrf_exempt
 def delete_story(request, id):
     if request.method != "DELETE":
-        return JsonResponse({"message": "Service unavailable, Invalid method"}, status=503)
+        return JsonResponse({"message": "Service unavailable, Invalid method"}, status=405)
 
     try:
         session = request.session["login_status"]
 
         if session != "logged_in":
-            return JsonResponse({"message": "Service unavailable, user not logged in"}, status=503)
+            return JsonResponse({"message": "Service unavailable, user not logged in"}, status=401)
     except KeyError:
-        return JsonResponse({"message": "Service unavailable, user not logged in"}, status=503)
+        return JsonResponse({"message": "Service unavailable, user not logged in"}, status=401)
 
     try:
         item = Story.objects.get(id=id)
     except Story.DoesNotExist:
-        return JsonResponse({"message": "Service unavailable, story not found"}, status=503)
+        return JsonResponse({"message": "Service unavailable, story not found"}, status=404)
 
     item.delete()
     return JsonResponse({"message": "OK"}, status=200)
