@@ -103,7 +103,7 @@ def get_story(request):
     try:
         category = request.GET["story_cat"]
         region = request.GET["story_region"]
-        date = request.GET["story_date"]
+        story_date = request.GET["story_date"]
     except KeyError:
         return JsonResponse({"message": "Service unavailable, invalid request"}, status=400)
 
@@ -120,10 +120,10 @@ def get_story(request):
     else:
         response = response.filter(region=region)
 
-    if date == "*":
+    if story_date == "*":
         response = response.all()
     else:
-        response = response.filter(date=date)
+        response = response.filter(date__range=[story_date, date.today()])
 
     response = response.values()
 

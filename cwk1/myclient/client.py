@@ -69,8 +69,13 @@ def parse_news_options(command):
         options_dict["cat"] = "*"
     if "reg" not in options_dict:
         options_dict["reg"] = "*"
+    if "date" in options_dict:
+        date_list = options_dict["date"].split("/")
+        options_dict["date"] = date_list[2] + "-" + date_list[1] + "-" + date_list[0]
     if "date" not in options_dict:
         options_dict["date"] = "*"
+
+    print(options_dict)
 
     return options_dict
 
