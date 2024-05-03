@@ -1,18 +1,23 @@
+import nltk
+from list import list_pages
+from build import build_index
 
-def build_index():
-    return "not implemented"
+nltk.download("punkt")
+
 
 def load_index():
     return "not implemented"
 
-def print_index(word: str):
-    return "not implemented"
 
-def list_pages(terms: list):
-    return "not implemented"
+def print_index(word: str, index: dict):
+    return index[word]
+
 
 def main():
-    input_prompt = ">> "
+    input_prompt = "\n\n>> "
+    urls = []
+    index = {}
+
     while True:
         print(input_prompt, end="")
 
@@ -25,16 +30,21 @@ def main():
             break
 
         if input_list[0] == "build":
-            build_index()
+            if index == {}:
+                urls, index = build_index("https://quotes.toscrape.com", urls, index)
+                # print(index)
+            else:
+                print("Index already built")
 
         if input_list[0] == "load":
             load_index()
 
         if input_list[0] == "print":
-            print_index(input_list[1])
+            print(print_index(input_list[1]), index)
 
         if input_list[0] == "find":
-            list_pages(input_list)
+            input_list.remove("find")
+            list_pages(input_list, index, urls)
 
         if input_list[0] == "help":
             print("Commands:")
