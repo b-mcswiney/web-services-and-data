@@ -16,7 +16,7 @@ def print_index(word: str, index: dict):
 def main():
     input_prompt = "\n\n>> "
     urls = []
-    index = {}
+    index = {"terms": {}, "doc-map": {}}
 
     while True:
         print(input_prompt, end="")
@@ -30,7 +30,7 @@ def main():
             break
 
         if input_list[0] == "build":
-            if index == {}:
+            if index == {"terms": {}, "doc-map": {}}:
                 urls, index = build_index("https://quotes.toscrape.com", urls, index)
                 # print(index)
             else:
