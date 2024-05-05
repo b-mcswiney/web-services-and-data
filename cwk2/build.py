@@ -43,8 +43,6 @@ def build_index(url: str, urls: list, index: dict):
         # add document to map
         index["doc-map"][str(count)] = u
 
-        # if count == 4:
-        #     break
         count += 1
     
     dump_index(index)
@@ -60,20 +58,20 @@ def parse_tokens(tokens: list, document: int, index: dict):
         token = t.lower()
         if len(token) > 1:
             if token not in index:
-                index[token] = {}
-                index[token]["doc-id"] = [document]
-                index[token]["locations"] = [count]
+                index[token] = []
+                to_add = {"doc-id": document, "locations": [count], "frequency": 1}
+                index[token].append(to_add)
             else:
-                if document not in index[token]["doc-id"]:
-                    index[token]["doc-id"].append(document)
-                    index[token]["locations"].append(count)
-                else:
-                    index[token]["locations"].append(count)
+                found = False
+                for doc in index[token]:
+                    if doc["doc-id"] == document:
+                        doc["locations"].append(count)
+                        doc["frequency"] += 1
+                        found = True
+                if not found:
+                    to_add = {"doc-id": document, "locations": [count], "frequency": 1}
+                    index[token].append(to_add)
         count += 1
-
-    for i in index:
-        index[i]["frequency"] = len(index[i]["locations"])
-
 
     return index
 

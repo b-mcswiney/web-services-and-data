@@ -1,12 +1,19 @@
 import nltk
+import json
 from list import list_pages
 from build import build_index
+
 
 nltk.download("punkt")
 
 
 def load_index():
-    return "not implemented"
+
+    f = open("index.json", "r")
+
+    data = json.load(f)
+
+    return data
 
 
 def print_index(word: str, index: dict):
@@ -37,14 +44,15 @@ def main():
                 print("Index already built")
 
         if input_list[0] == "load":
-            load_index()
+            index = load_index()
+            print(index)
 
         if input_list[0] == "print":
-            print(print_index(input_list[1]), index)
+            print(print_index(input_list[1]), index["terms"])
 
         if input_list[0] == "find":
             input_list.remove("find")
-            list_pages(input_list, index, urls)
+            list_pages(input_list, index["terms"], index["doc-map"])
 
         if input_list[0] == "help":
             print("Commands:")

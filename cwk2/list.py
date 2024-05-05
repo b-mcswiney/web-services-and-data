@@ -1,5 +1,5 @@
 
-def list_pages(terms: list, index: dict, urls: list):
+def list_pages(terms: list, index: dict, urls: dict):
     documents = []
     print("Terms: ", end="")
 
@@ -11,7 +11,7 @@ def list_pages(terms: list, index: dict, urls: list):
             print("\n", term, " NOT FOUND")
             return "fail"
 
-        for doc in index[term]:
+        for doc in index[term]["doc-id"]:
             term_docs.append(doc)
         documents.append(term_docs)
 
@@ -19,7 +19,7 @@ def list_pages(terms: list, index: dict, urls: list):
     print("Found in documents: ")
     same_docs = get_same(documents)
     for doc in same_docs:
-        print(urls[doc - 1])
+        print(urls[str(doc)])
 
     return "not implemented"
 
