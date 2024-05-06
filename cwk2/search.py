@@ -4,7 +4,7 @@ from list import list_pages
 from build import build_index
 
 
-nltk.download("punkt")
+# nltk.download("punkt")
 
 
 def load_index():
@@ -16,7 +16,17 @@ def load_index():
     return data
 
 
-def print_index(word: str, index: dict):
+def print_index(word: str, index: dict, urls: dict):
+    print("Frequency index for:", word)
+    print("------------------------------------------------------------------------")
+    for doc in index[word]:
+        print("[",  urls[str(doc["doc-id"])],":", doc["frequency"], "]")
+    
+    print("positions for:", word)
+    print("------------------------------------------------------------------------")
+    for doc in index[word]:
+        print("[", urls[str(doc["doc-id"])], ":", doc["locations"], "]")
+
     return index[word]
 
 
@@ -48,7 +58,7 @@ def main():
             print(index)
 
         if input_list[0] == "print":
-            print(print_index(input_list[1]), index["terms"])
+            print_index(input_list[1], index["terms"], index["doc-map"])
 
         if input_list[0] == "find":
             input_list.remove("find")

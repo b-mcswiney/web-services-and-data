@@ -1,39 +1,27 @@
+import heapq # for priority queue
+
 
 def list_pages(terms: list, index: dict, urls: dict):
-    documents = []
-    print("Terms: ", end="")
+    
+    
+    
+    # A = {}
+    # L = []
+    # R = []
 
-    for term in terms:
-        print(term + ", ", end="")
-        term_docs = []
+    # for term in terms:
+    #     if term in index:
+    #         L.append(index[term])
+    
+    # for i in range(len(L)):
+    #     for doc in L[i]:
+    #         if doc["doc-id"] not in A:
+    #             A[doc["doc-id"]] = 0
+    #         A[doc["doc-id"]] += 1
 
-        if term not in index:
-            print("\n", term, " NOT FOUND")
-            return "fail"
+    # for doc in A:
+    #     heapq.heappush(R, (A[doc], doc))
 
-        for doc in index[term]["doc-id"]:
-            term_docs.append(doc)
-        documents.append(term_docs)
-
-    print("\n-----------------------------------------------")
-    print("Found in documents: ")
-    same_docs = get_same(documents)
-    for doc in same_docs:
-        print(urls[str(doc)])
+    # print(R)
 
     return "not implemented"
-
-
-def get_same(term_docs: list):
-    same_docs = term_docs[0]
-    to_remove = []
-
-    for docs in same_docs:
-        for terms in term_docs:
-            if docs not in terms:
-                to_remove.append(docs)
-
-    for docs in to_remove:
-        same_docs.remove(docs)
-
-    return same_docs
