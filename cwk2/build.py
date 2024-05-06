@@ -56,7 +56,7 @@ def parse_tokens(tokens: list, document: int, index: dict):
     # Add locations to index
     for t in tokens:
         token = t.lower()
-        if len(token) > 1:
+        if len(token) > 1 and token not in nltk.corpus.stopwords.words("english"):
             if token not in index:
                 index[token] = []
                 to_add = {"doc-id": document, "locations": [count], "frequency": 1}

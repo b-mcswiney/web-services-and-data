@@ -4,8 +4,8 @@ from list import list_pages
 from build import build_index
 
 
-# nltk.download("punkt")
-
+nltk.download("punkt")
+nltk.download("stopwords")
 
 def load_index():
 
@@ -17,6 +17,10 @@ def load_index():
 
 
 def print_index(word: str, index: dict, urls: dict):
+    if word not in index:
+        print("Word not found in index")
+        return
+
     print("Frequency index for:", word)
     print("------------------------------------------------------------------------")
     for doc in index[word]:
@@ -27,13 +31,14 @@ def print_index(word: str, index: dict, urls: dict):
     for doc in index[word]:
         print("[", urls[str(doc["doc-id"])], ":", doc["locations"], "]")
 
-    return index[word]
-
 
 def main():
     input_prompt = "\n\n>> "
     urls = []
     index = {"terms": {}, "doc-map": {}}
+
+    stopwords = nltk.corpus.stopwords.words("english")
+    print(stopwords)
 
     while True:
         print(input_prompt, end="")
@@ -55,7 +60,6 @@ def main():
 
         if input_list[0] == "load":
             index = load_index()
-            print(index)
 
         if input_list[0] == "print":
             print_index(input_list[1], index["terms"], index["doc-map"])
