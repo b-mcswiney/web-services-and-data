@@ -17,7 +17,7 @@ def list_pages(terms: list, index: dict, urls: dict):
         print("No documents found")
     else:
         for doc in conjunctive_list:
-            print(urls[str(doc)])
+            print(urls[str(doc)], "score =", conjunctive_list[doc])
 
     disjunctive_list = get_disjunctive(terms, index, conjunctive_list)
 
@@ -46,6 +46,7 @@ def get_conjunctive(terms: list, index: dict):
 def sort_conjunctive(terms: list, index: dict, conjunctive_list: list):
     sorted_conjunctive = {}
     positions_per_doc = {}
+    frequency_per_doc = {}
 
     for term in terms:
         for doc in conjunctive_list:
@@ -53,11 +54,13 @@ def sort_conjunctive(terms: list, index: dict, conjunctive_list: list):
                 for item in index[term]:
                     if item["doc-id"] == doc:
                         positions_per_doc[doc] = item["locations"]
+                        frequency_per_doc[doc] = item["frequency"]
             else:
                 for item in index[term]:
                     if item["doc-id"] == doc:
                         for location in item["locations"]:
                             positions_per_doc[doc].append(location)
+                        frequency_per_doc[doc] += item["frequency"]
 
     for doc in positions_per_doc:
         positions_per_doc[doc].sort()
@@ -66,9 +69,9 @@ def sort_conjunctive(terms: list, index: dict, conjunctive_list: list):
         
         score = np.average(average_diff)
 
-        sorted_conjunctive[doc] = score
+        sorted_conjunctive[doc] = score * frequency_per_doc[doc]
 
-    return dict(sorted(sorted_conjunctive.items(), key=lambda item: item[1]))
+    return dict(reversed(sorted(sorted_conjunctive.items(), key=lambda item: item[1])))
 
 def get_disjunctive(terms: list, index: dict, conjunctive_list: list):
 
