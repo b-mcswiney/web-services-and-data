@@ -1,4 +1,5 @@
 import heapq # for priority queue
+import numpy as np
 
 
 def list_pages(terms: list, index: dict, urls: dict):
@@ -9,7 +10,7 @@ def list_pages(terms: list, index: dict, urls: dict):
             terms.remove(term)
             print("Term not found in index:", term, "removed from search")    
 
-    conjunctive_list = get_conjunctive(terms, index)
+    conjunctive_list = sort_conjunctive(terms, index, get_conjunctive(terms, index))
 
     print("--------------------------------------------------\nConjunctive list of documents (contains all search terms )\n--------------------------------------------------")
     if len(conjunctive_list) == 0:
@@ -44,16 +45,30 @@ def get_conjunctive(terms: list, index: dict):
 
 def sort_conjunctive(terms: list, index: dict, conjunctive_list: list):
     sorted_conjunctive = {}
+    positions_per_doc = {}
 
-    for doc in conjunctive_list:
-        count = 0
-        while count < len(terms):
-            if count == 0:
-                previous_pos = index[terms[count]][doc]["locations"]
+    for term in terms:
+        for doc in conjunctive_list:
+            if doc not in positions_per_doc:
+                for item in index[term]:
+                    if item["doc-id"] == doc:
+                        positions_per_doc[doc] = item["locations"]
+            else:
+                for item in index[term]:
+                    if item["doc-id"] == doc:
+                        for location in item["locations"]:
+                            positions_per_doc[doc].append(location)
 
-            count += 1
+    for doc in positions_per_doc:
+        positions_per_doc[doc].sort()
+        
+        average_diff = np.diff(positions_per_doc[doc])
+        
+        score = np.average(average_diff)
 
-    return sorted_conjunctive
+        sorted_conjunctive[doc] = score
+
+    return dict(sorted(sorted_conjunctive.items(), key=lambda item: item[1]))
 
 def get_disjunctive(terms: list, index: dict, conjunctive_list: list):
 
