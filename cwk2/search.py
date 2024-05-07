@@ -9,10 +9,17 @@ nltk.download("stopwords")
 
 def load_index():
 
-    f = open("index.json", "r")
+    try:
+        f = open("index.json", "r")
 
-    data = json.load(f)
+        data = json.load(f)
+    except Exception as e:
+        print("Error loading index. Returning empty index. Use 'build' to build index.")
+        print(e)
+        return {"terms": {}, "doc-map": {}}
 
+    print("Index loaded successfully")
+    
     return data
 
 
@@ -36,6 +43,7 @@ def main():
     input_prompt = "\n\n>> "
     urls = []
     index = {"terms": {}, "doc-map": {}}
+    index_default = {"terms": {}, "doc-map": {}}
 
     while True:
         print(input_prompt, end="")
@@ -48,24 +56,35 @@ def main():
         if input_list[0] == "exit":
             break
 
-        if input_list[0] == "build":
-            if index == {"terms": {}, "doc-map": {}}:
+        elif input_list[0] == "build":
+            if index == index_default:
                 urls, index = build_index("https://quotes.toscrape.com", urls, index)
                 # print(index)
             else:
                 print("Index already built")
 
-        if input_list[0] == "load":
+        elif input_list[0] == "load":
             index = load_index()
 
-        if input_list[0] == "print":
+        elif input_list[0] == "print" and index != index_default:
+            if len(input_list) < 2:
+                print("No word given")
+                continue
+            if len(input_list) > 2:
+                print("Too many words given")
+                continue
+
             print_index(input_list[1], index["terms"], index["doc-map"])
 
-        if input_list[0] == "find":
+        elif input_list[0] == "find" and index != index_default:
             input_list.remove("find")
+            if len(input_list) == 0:
+                print("No search terms given")
+                continue
+
             list_pages(input_list, index["terms"], index["doc-map"])
 
-        if input_list[0] == "help":
+        elif input_list[0] == "help":
             print("Commands:")
             print("  Build - Build the index")
             print("  Load - Load the index from file (requires Build)")
@@ -73,5 +92,10 @@ def main():
             print("  Search [terms] - Gives pages where terms appear")
             print("  exit - Exit the program")
 
+        elif input_list[0] not in ["build", "load", "print", "find", "help", "exit"]:
+            print("Invalid command. Type 'help' for a list of commands")
+
+        else:
+            print("No index built. Type 'build' or 'load' to build index")
 
 main()

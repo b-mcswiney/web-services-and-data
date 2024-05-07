@@ -17,7 +17,13 @@ def build_index(url: str, urls: list, index: dict):
 
         # politeness window between requests
         time.sleep(6)
+
+        # Get html from url
         html = requests.get(u)
+
+        if html.status_code != 200:
+            print("Failed to get page", u)
+            continue
 
         # Convert request into soup
         soup = BeautifulSoup(html.text, "html.parser")

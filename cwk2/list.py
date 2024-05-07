@@ -5,10 +5,22 @@ import numpy as np
 def list_pages(terms: list, index: dict, urls: dict):
     # Check that all searched items are in index
     # if not in index, remove it
+    to_remove = []
     for term in terms:
+        print("Searching for term:", term)
         if term not in index:
-            terms.remove(term)
+            to_remove.append(term)
             print("Term not found in index:", term, "removed from search")    
+    
+    for term in to_remove:
+        terms.remove(term)
+
+    if len(terms) == 0:
+        print("No search terms found in index")
+        return
+
+    if len(to_remove) > 0:
+        print("new search terms:", terms)
 
     conjunctive_list = sort_conjunctive(terms, index, get_conjunctive(terms, index))
 
@@ -17,7 +29,7 @@ def list_pages(terms: list, index: dict, urls: dict):
         print("No documents found")
     else:
         for doc in conjunctive_list:
-            print(urls[str(doc)], "score =", conjunctive_list[doc])
+            print(urls[str(doc)])
 
     disjunctive_list = get_disjunctive(terms, index, conjunctive_list)
 
@@ -67,7 +79,10 @@ def sort_conjunctive(terms: list, index: dict, conjunctive_list: list):
         
         average_diff = np.diff(positions_per_doc[doc])
         
-        score = np.average(average_diff)
+        if len(average_diff) == 0:
+            score = 0
+        else:
+            score = np.average(average_diff)
 
         sorted_conjunctive[doc] = score * frequency_per_doc[doc]
 
