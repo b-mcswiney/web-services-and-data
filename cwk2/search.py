@@ -37,9 +37,6 @@ def main():
     urls = []
     index = {"terms": {}, "doc-map": {}}
 
-    stopwords = nltk.corpus.stopwords.words("english")
-    print(stopwords)
-
     while True:
         print(input_prompt, end="")
 
