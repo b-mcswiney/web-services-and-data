@@ -24,21 +24,38 @@ def list_pages(terms: list, index: dict, urls: dict):
 
     conjunctive_list = sort_conjunctive(terms, index, get_conjunctive(terms, index))
 
+    print_count = 3
+
     print("--------------------------------------------------\nConjunctive list of documents (contains all search terms )\n--------------------------------------------------")
     if len(conjunctive_list) == 0:
         print("No documents found")
     else:
         for doc in conjunctive_list:
             print(urls[str(doc)])
-
+            if print_count % 10 == 0 and print_count != 0:
+                print("Continue? (Y/n)")
+                cont = input()
+                if cont == "n":
+                    break
+            print_count += 1
+        
     disjunctive_list = get_disjunctive(terms, index, conjunctive_list)
 
     print("--------------------------------------------------\nDisjunctive list of documents (contains some search terms not including conjunctive documents)\n--------------------------------------------------")
+    
+    print_count += 3
+
     if len(disjunctive_list) == 0:
         print("No documents found")
     else:
         for doc in disjunctive_list:
             print(urls[str(doc[1])])
+            if print_count % 10 == 0 and print_count != 0:
+                print("Continue? (Y/n)")
+                cont = input()
+                if cont == "n":
+                    break
+            print_count += 1
 
 
 def get_conjunctive(terms: list, index: dict):

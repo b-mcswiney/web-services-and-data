@@ -28,16 +28,32 @@ def print_index(word: str, index: dict, urls: dict):
         print("Word not found in index")
         return
 
+    print("------------------------------------------------------------------------")
     print("Frequency index for:", word)
     print("------------------------------------------------------------------------")
+
+    print_count = 3
     for doc in index[word]:
         print("[",  urls[str(doc["doc-id"])],":", doc["frequency"], "]")
+        if print_count % 10 == 0 and print_count != 0:
+            print("Continue? (Y/n)")
+            cont = input()
+            if cont == "n":
+                break
+        print_count += 1
     
+    print("------------------------------------------------------------------------")
     print("positions for:", word)
     print("------------------------------------------------------------------------")
+    print_count = 3
     for doc in index[word]:
         print("[", urls[str(doc["doc-id"])], ":", doc["locations"], "]")
-
+        if print_count % 10 == 0 and print_count != 0:
+            print("Continue? (Y/n)")
+            cont = input()
+            if cont == "n":
+                break
+        print_count += 1
 
 def main():
     input_prompt = "\n\n>> "
